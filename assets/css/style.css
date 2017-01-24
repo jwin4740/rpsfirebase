@@ -1,0 +1,41 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+   
+}
+
+#header {
+    text-align: center;
+    margin: 0px;
+}
+
+#notification{
+    height: 50px;
+}
+#maingame{
+    margin: 25px;
+}
+
+#ingamecontain{
+    margin: auto;
+    border: solid 2px black;
+    width: 675px;
+    height: 210px;
+}
+.ingame{
+    float: left;
+    margin: 15px;
+    height: 175px;
+    width: 175px;
+    border: solid 3px black;
+}
+
+#chat{
+    clear: both;
+    margin: auto;
+    border: solid 1px black;
+    width: 600px;
+    height: 200px;
+}
