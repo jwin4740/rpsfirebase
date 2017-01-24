@@ -13,6 +13,7 @@ body {
 
 #notification{
     height: 50px;
+    text-align: center;
 }
 #maingame{
     margin: 25px;
