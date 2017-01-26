@@ -8,6 +8,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <title> Multiplayer RPS </title>
+    <style>
+    h4 {
+        cursor: pointer;
+    }
+    </style>
 </head>
 
 <body>
@@ -15,25 +20,36 @@
         <h1> RPS multiplayer</h1>
         <p id="headerspan"></p>
     </div>
-    <section>
+    <section style="clear:both">
         <div id="notification">
             <input type="text" id="playername" placeholder="Name">
             <div id="startButton">
                 <button id="start">START</button>
+                <button id="startgame">Startthe game</button>
             </div>
         </div>
         <div id="maingame">
             <div id="ingamecontain">
                 <div class="ingame" id="playerone">
+                    PLAYERONE
+                    <h4 data-value="rock"> rock </h4>
+                    <h4 data-value="paper"> paper </h4>
+                    <h4 data-value="scissors"> scissors </h4>
                 </div>
                 <div class="ingame" id="gamenotify">
                 </div>
-                <div class="ingame" id="playertwo">
+                <div class="ingame" id="playertwo">PLAYERTWO
+                    <h4 data-value="rock"> rock </h4>
+                    <h4 data-value="paper"> paper </h4>
+                    <h4 data-value="scissors"> scissors </h4>
                 </div>
             </div>
         </div>
         <div id="chat">
-            Chat
+        </div>
+        <div id="chatinput">
+            <input type="text" id="message">
+            <button id="submitchat">SUBMIT</button>
         </div>
     </section>
     <script src="https://code.jquery.com/jquery-2.2.3.js" integrity="sha256-laXWtGydpwqJ8JA+X9x2miwmaiKhn8tVmOVEigRNtP4=" crossorigin="anonymous"></script>

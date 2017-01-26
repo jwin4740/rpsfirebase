@@ -19,6 +19,10 @@ var playerTwoLosses = "";
 var playerOneValue = "";
 var playerTwoValue = "";
 var playerTwoPick = false;
+var IdPlayer = ""
+var playerOneChat = "";
+var playerTwoChat = "";
+var novoMessages = "";
 // Get a reference to the database service
 var database = firebase.database();
 
@@ -31,25 +35,48 @@ function showTime() {
 setInterval(showTime, 1000);
 
 // player constructor object
-function player(playerNumber, playerName, playerWins, playerLosses, playerChoice) {
+function player(playerNumber, playerName, playerWins, playerLosses, playerChoice, playerChat) {
     this.playerNumber = playerNumber;
     this.playerName = playerName;
     this.playerWins = playerWins;
     this.playerLosses = playerLosses;
     this.playerChoice = playerChoice;
+    this.playerChat = playerChat;
 }
 
-var playerOne = new player(1, playerOneName, playerOneWins, playerOneLosses, playerOneChoice);
-var playerTwo = new player(2, playerTwoName, playerTwoWins, playerTwoLosses, playerTwoChoice);
-playerOne.playerOneChoice = choiceArray[0];
-console.log(playerOne);
+var playerOne = new player(1, playerOneName, playerOneWins, playerOneLosses, playerOneChoice, playerOneChat);
+var playerTwo = new player(2, playerTwoName, playerTwoWins, playerTwoLosses, playerTwoChoice, playerTwoChat);
+
+
+
+
 
 database.ref("/RPSgame/turn").on("value", function(snapshot) {
 
-    playerTwoPick = snapshot.val().playerTwoPick;
-
+    playerTwoPick = snapshot.val();
 });
-console.log(playerTwoPick);
+
+database.ref("/RPSgame/player2").on("value", function(snapshot) {
+    if (snapshot.val() != null) {
+
+        IdPlayer = snapshot.val().name;
+    }
+});
+
+database.ref("/chat").on("child_added", function(childSnapshot) {
+    sender = childSnapshot.val().sender;
+    message = childSnapshot.val().chatcontent;
+    messagetimestamp = childSnapshot.val().messagetime;
+
+    
+    updateChatDisplay(sender, message, messagetimestamp);
+});
+
+
+function updateChatDisplay(sender, message, messagetime) {
+     $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
+
+}
 
 
 $("#start").on("click", function() {
@@ -84,12 +111,49 @@ $("#start").on("click", function() {
     }
     database.ref("/RPSgame/turn").set({
         playerTwoPick: true,
-        turn: ""
+        turn: "",
     });
-    console.log(playerTwoPick);
+   
+    console.log(IdPlayer);
+    console.log()
 });
 
 
+
+$(".ingame").on("click", "h4", function() {
+    console.log($(this).attr("data-value"));
+
+});
+
+
+$("#submitchat").on("click", function() {
+
+
+
+    if (IdPlayer != playerTwo.playerTwoName) {
+
+        var message = $("#message").val();
+        var messagetimestamp = moment().format('MMMM Do YYYY, h:mm:ss a');
+        $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + playerOne.playerOneName + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
+        console.log(message);
+        database.ref("/chat").push({
+            sender: playerOne.playerOneName,
+            messagetime : messagetimestamp, 
+            chatcontent: message
+        });
+    }
+
+    if (IdPlayer === playerTwo.playerTwoName) {
+
+       
+
+        // var message = $("#message").val();
+        $("#chat").append("<p class='chatpara'><span class='boldname playertwo'>" + playerTwo.playerTwoName + ": </span><span class='mainmessage'>" + novoMessages + " </span>" + " " + "<span class='momentstamp'>on " + moment().format('MMMM Do YYYY, h:mm:ss a') + "</span></p>");
+
+        
+    }
+
+});
 
 
 
