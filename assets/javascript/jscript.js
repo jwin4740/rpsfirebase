@@ -68,13 +68,25 @@ database.ref("/chat").on("child_added", function(childSnapshot) {
     message = childSnapshot.val().chatcontent;
     messagetimestamp = childSnapshot.val().messagetime;
 
+
+    // updateChatDisplayPlayerOneMessage(sender, message, messagetimestamp);
     
-    updateChatDisplay(sender, message, messagetimestamp);
+        $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
+    
 });
 
 
-function updateChatDisplay(sender, message, messagetime) {
-     $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
+function updateChatDisplayPlayerOneMessage(sender, message, messagetime) {
+
+    $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
+
+
+}
+
+function updateChatDisplayPlayerTwoMessage(sender, message, messagetime) {
+
+    $("#chat").append("<p class='chatpara'><span class='boldname playertwo'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
+
 
 }
 
@@ -113,7 +125,7 @@ $("#start").on("click", function() {
         playerTwoPick: true,
         turn: "",
     });
-   
+
     console.log(IdPlayer);
     console.log()
 });
@@ -127,30 +139,27 @@ $(".ingame").on("click", "h4", function() {
 
 
 $("#submitchat").on("click", function() {
-
-
-
     if (IdPlayer != playerTwo.playerTwoName) {
-
         var message = $("#message").val();
         var messagetimestamp = moment().format('MMMM Do YYYY, h:mm:ss a');
-        $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + playerOne.playerOneName + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
         console.log(message);
         database.ref("/chat").push({
             sender: playerOne.playerOneName,
-            messagetime : messagetimestamp, 
+            messagetime: messagetimestamp,
             chatcontent: message
         });
     }
 
     if (IdPlayer === playerTwo.playerTwoName) {
 
-       
+        var message = $("#message").val();
+        var messagetimestamp = moment().format('MMMM Do YYYY, h:mm:ss a');
+        database.ref("/chat").push({
+            sender: playerTwo.playerTwoName,
+            messagetime: messagetimestamp,
+            chatcontent: message
+        });
 
-        // var message = $("#message").val();
-        $("#chat").append("<p class='chatpara'><span class='boldname playertwo'>" + playerTwo.playerTwoName + ": </span><span class='mainmessage'>" + novoMessages + " </span>" + " " + "<span class='momentstamp'>on " + moment().format('MMMM Do YYYY, h:mm:ss a') + "</span></p>");
-
-        
     }
 
 });
