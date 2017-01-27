@@ -69,26 +69,18 @@ database.ref("/chat").on("child_added", function(childSnapshot) {
     messagetimestamp = childSnapshot.val().messagetime;
 
 
-    // updateChatDisplayPlayerOneMessage(sender, message, messagetimestamp);
-    
-        $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
-    
+    updateChatDisplay(sender, message, messagetimestamp);
+
 });
 
 
-function updateChatDisplayPlayerOneMessage(sender, message, messagetime) {
+function updateChatDisplay(sender, message, messagetime) {
 
     $("#chat").append("<p class='chatpara'><span class='boldname playerone'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
 
-
 }
 
-function updateChatDisplayPlayerTwoMessage(sender, message, messagetime) {
 
-    $("#chat").append("<p class='chatpara'><span class='boldname playertwo'>" + sender + ": </span><span class='mainmessage'>" + message + " </span>" + " " + "<span class='momentstamp'>on " + messagetimestamp + "</span></p>");
-
-
-}
 
 
 $("#start").on("click", function() {
@@ -148,6 +140,7 @@ $("#submitchat").on("click", function() {
             messagetime: messagetimestamp,
             chatcontent: message
         });
+        $("#message").val("");
     }
 
     if (IdPlayer === playerTwo.playerTwoName) {
@@ -159,17 +152,32 @@ $("#submitchat").on("click", function() {
             messagetime: messagetimestamp,
             chatcontent: message
         });
-
+        $("#message").val("");
     }
 
 });
 
 
+$("#startgame").on("click", function() {
 
+    startgamelogic();
 
+});
 
+function startgamelogic() {
+    $("#playerone").on("click", "h4", function() {
 
+        var player1choicer = $(this).attr("data-value");
+        console.log(player1choicer);
 
+    });
+    $("#playertwo").on("click", "h4", function() {
+
+        var player2choicer = $(this).attr("data-value");
+        console.log(player2choicer);
+
+    });
+}
 
 
 

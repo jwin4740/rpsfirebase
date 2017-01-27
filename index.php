@@ -1,1 +1,1 @@
-<?php include_once("whitetrain.html");?>
+<?php include_once("index.html");?>
