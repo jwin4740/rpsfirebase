@@ -23,6 +23,10 @@ var IdPlayer = ""
 var playerOneChat = "";
 var playerTwoChat = "";
 var novoMessages = "";
+var startName = true;
+var amPlayer1 = true;
+var firePlayerOneChoice = "";
+var firePlayerTwoChoice = "";
 // Get a reference to the database service
 var database = firebase.database();
 
@@ -84,6 +88,7 @@ function updateChatDisplay(sender, message, messagetime) {
 
 
 $("#start").on("click", function() {
+
     if (!playerTwoPick) {
         playerOne.playerOneName = $("#playername").val();
         console.log(playerOne.playerOneName);
@@ -102,6 +107,7 @@ $("#start").on("click", function() {
 
         playerTwo.playerTwoName = $("#playername").val();
         console.log(playerTwo.playerTwoName);
+        amPlayer1 = false;
         database.ref("/RPSgame/player2").set({
             player: 2,
             name: playerTwo.playerTwoName,
@@ -116,18 +122,18 @@ $("#start").on("click", function() {
     database.ref("/RPSgame/turn").set({
         playerTwoPick: true,
         turn: "",
+        playerOnechoice: "",
+        playerTwochoice: "",
     });
 
     console.log(IdPlayer);
     console.log()
-});
-
-
-
-$(".ingame").on("click", "h4", function() {
-    console.log($(this).attr("data-value"));
+    $("#notification").remove();
 
 });
+
+
+
 
 
 $("#submitchat").on("click", function() {
@@ -158,26 +164,105 @@ $("#submitchat").on("click", function() {
 });
 
 
-$("#startgame").on("click", function() {
 
-    startgamelogic();
 
-});
 
-function startgamelogic() {
-    $("#playerone").on("click", "h4", function() {
+$("#playerone").on("click", "h4", function() {
 
+    if (amPlayer1 === true) {
         var player1choicer = $(this).attr("data-value");
         console.log(player1choicer);
+        database.ref("/RPSgame/player1").set({
+            player: 1,
+            name: playerOne.playerOneName,
+            choice: player1choicer,
+            wins: "",
+            losses: "",
+            dateAdded: firebase.database.ServerValue.TIMESTAMP
+        });
+        console.log("this is player one");
+    }
 
-    });
-    $("#playertwo").on("click", "h4", function() {
+    checkForBothSubmitted();
+
+
+});
+$("#playertwo").on("click", "h4", function() {
+    if (amPlayer1 === false) {
 
         var player2choicer = $(this).attr("data-value");
         console.log(player2choicer);
+        database.ref("/RPSgame/player2").set({
+            player: 2,
+            name: playerTwo.playerTwoName,
+            choice: player2choicer,
+            wins: "",
+            losses: "",
+            dateAdded: firebase.database.ServerValue.TIMESTAMP
+        });
+        console.log("this is player two");
+    }
 
-    });
+
+});
+
+database.ref("/RPSgame/player1").on("value", function(snapshot) {
+    
+        firePlayerOneChoice = snapshot.val().choice;
+        checkForBothSubmitted();
+    
+
+});
+
+database.ref("/RPSgame/player2").on("value", function(snapshot) {
+   
+        firePlayerTwoChoice = snapshot.val().choice;
+        checkForBothSubmitted();
+    
+});
+
+
+
+function checkForBothSubmitted() {
+    if ((firePlayerOneChoice === "rock" || firePlayerOneChoice === "paper" || firePlayerOneChoice === "scissors") && (firePlayerTwoChoice === "rock" || firePlayerTwoChoice === "paper" || firePlayerTwoChoice === "scissors")) {
+        console.log("lets move on");
+    }
+
+    console.log("lets wait until both players have submitted");
 }
+
+
+
+
+
+
+
+
+
+// if ((playerOne.playerOneChoice === "rock") || (playerOne.playerOneChoice === "paper") || (playerOne.playerOneChoice === "scissors")) {
+
+//     // This logic determines the outcome of the game (win/loss/tie), and increments the appropriate counter.
+//     if ((playerOne.playerOneChoice === "rock") && (playerTwo.playerTwoChoice === "scissors")) {
+//         wins++;
+//     } else if ((playerOne.playerOneChoice === "rock") && (playerTwo.playerTwoChoice === "paper")) {
+//         losses++;
+//     } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "rock")) {
+//         losses++;
+//     } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "paper")) {
+//         wins++;
+//     } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "rock")) {
+//         wins++;
+//     } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "scissors")) {
+//         losses++;
+//     } else if (playerOne.playerOneChoice === playerTwo.playerTwoChoice) {
+//         ties++;
+//     }
+
+
+
+
+
+
 
 
 
