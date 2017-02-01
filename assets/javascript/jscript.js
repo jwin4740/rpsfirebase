@@ -31,6 +31,7 @@ var gameInPlay = false;
 var ties = 0;
 var winner = "";
 var tie = false;
+var showWinner = false;
 
 // Get a reference to the database service
 var database = firebase.database();
@@ -275,7 +276,7 @@ function showdown() {
 
             playerOne.playerOneLosses++;
             playerTwo.playerTwoWins++;
-             pGameRef.set({
+            pGameRef.set({
                 playerTwoPick: true,
                 tie: tie,
                 roundwinner: 2
@@ -283,7 +284,7 @@ function showdown() {
         } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "rock")) {
             playerOne.playerOneLosses++;
             playerTwo.playerTwoWins++;
-             pGameRef.set({
+            pGameRef.set({
                 playerTwoPick: true,
                 tie: tie,
                 roundwinner: 2
@@ -291,7 +292,7 @@ function showdown() {
         } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "paper")) {
             playerOne.playerOneWins++;
             playerTwo.playerTwoLosses++;
-             pGameRef.set({
+            pGameRef.set({
                 playerTwoPick: true,
                 tie: tie,
                 roundwinner: 1
@@ -299,7 +300,7 @@ function showdown() {
         } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "rock")) {
             playerOne.playerOneWins++;
             playerTwo.playerTwoLosses++;
-             pGameRef.set({
+            pGameRef.set({
                 playerTwoPick: true,
                 tie: tie,
                 roundwinner: 1
@@ -307,7 +308,7 @@ function showdown() {
         } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "scissors")) {
             playerOne.playerOneLosses++;
             playerTwo.playerTwoWins++;
-             pGameRef.set({
+            pGameRef.set({
                 playerTwoPick: true,
                 tie: tie,
                 roundwinner: 2
@@ -315,10 +316,10 @@ function showdown() {
         } else if (playerOne.playerOneChoice === playerTwo.playerTwoChoice) {
             ties++;
             tie = true;
-             pGameRef.set({
+            pGameRef.set({
                 playerTwoPick: true,
                 tie: tie,
-                roundwinner: " "
+                roundwinner: "no winner"
             });
         }
 
@@ -341,19 +342,38 @@ function showdown() {
             dateAdded: firebase.database.ServerValue.TIMESTAMP
 
         });
-        $("#gamenotify").html(playerOne.playerOneName + " wins!!!");
-        $("#gamenotify").html(playerTwo.playerTwoName + " wins!!!");
-        $("#gamenotify").html("It's a tie");
+
+        showWinner = true;
+
 
     }
 }
 
 
+pGameRef.on("value", function(snapshot) {
+
+    if (showWinner) {
+        winner = parseInt(snapshot.val().roundwinner);
+        if (winner === 1) {
+            $("#gamenotify").html(playerOne.playerOneName + " wins!!!");
+
+        }
+
+        if (winner === 2) {
+            $("#gamenotify").html(playerTwo.playerTwoName + " wins!!!");
+
+        }
+
+        if (winner != 1 || winner != 2) {
+            $("#gamenotify").html("It's a tie");
+        }
+    }
+
+});
 
 
 
-
-$("#resetfirebase").on("click", function () {
+$("#resetfirebase").on("click", function() {
 
     database.ref().set(0);
 
