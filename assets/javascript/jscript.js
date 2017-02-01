@@ -28,7 +28,8 @@ var amPlayer1 = true;
 var firePlayerOneChoice = "";
 var firePlayerTwoChoice = "";
 var gameInPlay = false;
-var ties = "";
+var ties = 0;
+
 // Get a reference to the database service
 var database = firebase.database();
 
@@ -100,14 +101,12 @@ $("#start").on("click", function() {
     if (!playerTwoPick) {
         playerOne.playerOneName = $("#playername").val();
         console.log(playerOne.playerOneName);
-
         pOneRef.set({
             player: 1,
             name: playerOne.playerOneName,
             choice: "",
-            wins: "",
-            losses: "",
-            ties: "",
+            wins: playerOne.playerOneWins,
+            losses: playerOne.playerOneLosses,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
 
         });
@@ -122,9 +121,8 @@ $("#start").on("click", function() {
             player: 2,
             name: playerTwo.playerTwoName,
             choice: "",
-            wins: "",
-            losses: "",
-            ties: "",
+            wins: playerTwo.playerTwoWins,
+            losses: playerTwo.playerTwoLosses,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
         });
 
@@ -132,7 +130,7 @@ $("#start").on("click", function() {
     }
     database.ref("/RPSgame/game").set({
         playerTwoPick: true,
-        ties: ""
+        ties: ties
     });
 
     console.log(IdPlayer);
@@ -187,7 +185,6 @@ $("#playerone").on("click", "h4", function() {
             choice: playerOne.playerOneChoice,
             wins: playerOne.playerOneWins,
             losses: playerOne.playerOneLosses,
-            ties: ties,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
 
         });
@@ -211,7 +208,6 @@ $("#playertwo").on("click", "h4", function() {
             choice: playerTwo.playerTwoChoice,
             wins: playerTwo.playerTwoWins,
             losses: playerTwo.playerTwoLosses,
-            ties: ties,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
         });
         console.log("this is player two");
@@ -248,9 +244,7 @@ function checkForBothSubmitted() {
     if ((playerOne.playerOneChoice === "rock" || playerOne.playerOneChoice === "paper" || playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "rock" || playerTwo.playerTwoChoice === "paper" || playerTwo.playerTwoChoice === "scissors")) {
         console.log("lets move on");
         showdown();
-    } else {
-        console.log("lets wait until both players have submitted");
-    }
+    } 
 }
 
 
@@ -290,7 +284,6 @@ function showdown() {
 
         pOneRef.set({
             player: 1,
-            name: playerOne.playerOneName,
             choice: playerOne.playerOneChoice,
             wins: playerOne.playerOneWins,
             losses: playerOne.playerOneLosses,
@@ -301,7 +294,6 @@ function showdown() {
 
         pTwoRef.set({
             player: 2,
-            name: playerTwo.playerTwoName,
             choice: playerTwo.playerTwoChoice,
             wins: playerTwo.playerTwoWins,
             losses: playerTwo.playerTwoLosses,
