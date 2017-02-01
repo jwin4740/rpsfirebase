@@ -11,11 +11,11 @@ var choiceArray = ["rock", "paper", "scissors"];
 var playerOneChoice = "";
 var playerTwoChoice = "";
 var playerOneName = "";
-var playerOneWins = "";
-var playerOneLosses = "";
+var playerOneWins = 0;
+var playerOneLosses = 0;
 var playerTwoName = "";
-var playerTwoWins = "";
-var playerTwoLosses = "";
+var playerTwoWins = 0;
+var playerTwoLosses = 0;
 var playerOneValue = "";
 var playerTwoValue = "";
 var playerTwoPick = false;
@@ -27,8 +27,13 @@ var startName = true;
 var amPlayer1 = true;
 var firePlayerOneChoice = "";
 var firePlayerTwoChoice = "";
+var gameInPlay = false;
+var ties = "";
 // Get a reference to the database service
 var database = firebase.database();
+
+var pOneRef = database.ref("/RPSgame/player1");
+var pTwoRef = database.ref("/RPSgame/player2");
 
 
 
@@ -50,17 +55,20 @@ function player(playerNumber, playerName, playerWins, playerLosses, playerChoice
 
 var playerOne = new player(1, playerOneName, playerOneWins, playerOneLosses, playerOneChoice, playerOneChat);
 var playerTwo = new player(2, playerTwoName, playerTwoWins, playerTwoLosses, playerTwoChoice, playerTwoChat);
+playerOne.playerOneWins = 0;
+playerOne.playerOneLosses = 0;
+playerTwo.playerTwoWins = 0;
+playerTwo.playerTwoLosses = 0;
 
 
 
 
-
-database.ref("/RPSgame/turn").on("value", function(snapshot) {
+database.ref("/RPSgame/game").on("value", function(snapshot) {
 
     playerTwoPick = snapshot.val();
 });
 
-database.ref("/RPSgame/player2").on("value", function(snapshot) {
+pTwoRef.on("value", function(snapshot) {
     if (snapshot.val() != null) {
 
         IdPlayer = snapshot.val().name;
@@ -93,13 +101,15 @@ $("#start").on("click", function() {
         playerOne.playerOneName = $("#playername").val();
         console.log(playerOne.playerOneName);
 
-        database.ref("/RPSgame/player1").set({
+        pOneRef.set({
             player: 1,
             name: playerOne.playerOneName,
             choice: "",
             wins: "",
             losses: "",
+            ties: "",
             dateAdded: firebase.database.ServerValue.TIMESTAMP
+
         });
     }
 
@@ -108,22 +118,21 @@ $("#start").on("click", function() {
         playerTwo.playerTwoName = $("#playername").val();
         console.log(playerTwo.playerTwoName);
         amPlayer1 = false;
-        database.ref("/RPSgame/player2").set({
+        pTwoRef.set({
             player: 2,
             name: playerTwo.playerTwoName,
             choice: "",
             wins: "",
             losses: "",
+            ties: "",
             dateAdded: firebase.database.ServerValue.TIMESTAMP
         });
 
 
     }
-    database.ref("/RPSgame/turn").set({
+    database.ref("/RPSgame/game").set({
         playerTwoPick: true,
-        turn: "",
-        playerOnechoice: "",
-        playerTwochoice: "",
+        ties: ""
     });
 
     console.log(IdPlayer);
@@ -170,65 +179,78 @@ $("#submitchat").on("click", function() {
 $("#playerone").on("click", "h4", function() {
 
     if (amPlayer1 === true) {
-        var player1choicer = $(this).attr("data-value");
-        console.log(player1choicer);
-        database.ref("/RPSgame/player1").set({
+        playerOne.playerOneChoice = $(this).attr("data-value");
+        console.log(playerOne.playerOneChoice);
+        pOneRef.set({
             player: 1,
             name: playerOne.playerOneName,
-            choice: player1choicer,
-            wins: "",
-            losses: "",
+            choice: playerOne.playerOneChoice,
+            wins: playerOne.playerOneWins,
+            losses: playerOne.playerOneLosses,
+            ties: ties,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
+
         });
+        checkForBothSubmitted();
         console.log("this is player one");
+        gameInPlay = true;
     }
 
-    checkForBothSubmitted();
+
 
 
 });
 $("#playertwo").on("click", "h4", function() {
     if (amPlayer1 === false) {
 
-        var player2choicer = $(this).attr("data-value");
-        console.log(player2choicer);
+        playerTwo.playerTwoChoice = $(this).attr("data-value");
+        console.log(playerTwo.playerTwoChoice);
         database.ref("/RPSgame/player2").set({
             player: 2,
             name: playerTwo.playerTwoName,
-            choice: player2choicer,
-            wins: "",
-            losses: "",
+            choice: playerTwo.playerTwoChoice,
+            wins: playerTwo.playerTwoWins,
+            losses: playerTwo.playerTwoLosses,
+            ties: ties,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
         });
         console.log("this is player two");
+        checkForBothSubmitted();
     }
 
 
 });
 
+
+
 database.ref("/RPSgame/player1").on("value", function(snapshot) {
-    
-        firePlayerOneChoice = snapshot.val().choice;
-        checkForBothSubmitted();
-    
+    if (snapshot.val() != null) {
+        playerOne.playerOneChoice = snapshot.val().choice;
+
+    }
+
 
 });
 
 database.ref("/RPSgame/player2").on("value", function(snapshot) {
-   
-        firePlayerTwoChoice = snapshot.val().choice;
-        checkForBothSubmitted();
-    
+    if (snapshot.val() != null) {
+        playerTwo.playerTwoChoice = snapshot.val().choice;
+
+    }
+
 });
 
 
 
-function checkForBothSubmitted() {
-    if ((firePlayerOneChoice === "rock" || firePlayerOneChoice === "paper" || firePlayerOneChoice === "scissors") && (firePlayerTwoChoice === "rock" || firePlayerTwoChoice === "paper" || firePlayerTwoChoice === "scissors")) {
-        console.log("lets move on");
-    }
 
-    console.log("lets wait until both players have submitted");
+
+function checkForBothSubmitted() {
+    if ((playerOne.playerOneChoice === "rock" || playerOne.playerOneChoice === "paper" || playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "rock" || playerTwo.playerTwoChoice === "paper" || playerTwo.playerTwoChoice === "scissors")) {
+        console.log("lets move on");
+        showdown();
+    } else {
+        console.log("lets wait until both players have submitted");
+    }
 }
 
 
@@ -238,25 +260,58 @@ function checkForBothSubmitted() {
 
 
 
+function showdown() {
+    if ((playerOne.playerOneChoice === "rock") || (playerOne.playerOneChoice === "paper") || (playerOne.playerOneChoice === "scissors")) {
 
-// if ((playerOne.playerOneChoice === "rock") || (playerOne.playerOneChoice === "paper") || (playerOne.playerOneChoice === "scissors")) {
+        // This logic determines the outcome of the game (win/loss/tie), and increments the appropriate counter.
+        if ((playerOne.playerOneChoice === "rock") && (playerTwo.playerTwoChoice === "scissors")) {
+            playerOne.playerOneWins++;
+            playerTwo.playerTwoLosses++;
 
-//     // This logic determines the outcome of the game (win/loss/tie), and increments the appropriate counter.
-//     if ((playerOne.playerOneChoice === "rock") && (playerTwo.playerTwoChoice === "scissors")) {
-//         wins++;
-//     } else if ((playerOne.playerOneChoice === "rock") && (playerTwo.playerTwoChoice === "paper")) {
-//         losses++;
-//     } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "rock")) {
-//         losses++;
-//     } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "paper")) {
-//         wins++;
-//     } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "rock")) {
-//         wins++;
-//     } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "scissors")) {
-//         losses++;
-//     } else if (playerOne.playerOneChoice === playerTwo.playerTwoChoice) {
-//         ties++;
-//     }
+        } else if ((playerOne.playerOneChoice === "rock") && (playerTwo.playerTwoChoice === "paper")) {
+
+            playerOne.playerOneLosses++;
+            playerTwo.playerTwoWins++;
+        } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "rock")) {
+            playerOne.playerOneLosses++;
+            playerTwo.playerTwoWins++;
+        } else if ((playerOne.playerOneChoice === "scissors") && (playerTwo.playerTwoChoice === "paper")) {
+            playerOne.playerOneWins++;
+            playerTwo.playerTwoLosses++;
+        } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "rock")) {
+            playerOne.playerOneWins++;
+            playerTwo.playerTwoLosses++;
+        } else if ((playerOne.playerOneChoice === "paper") && (playerTwo.playerTwoChoice === "scissors")) {
+            playerOne.playerOneLosses++;
+            playerTwo.playerTwoWins++;
+        } else if (playerOne.playerOneChoice === playerTwo.playerTwoChoice) {
+            ties++;
+        }
+
+        pOneRef.set({
+            player: 1,
+            name: playerOne.playerOneName,
+            choice: playerOne.playerOneChoice,
+            wins: playerOne.playerOneWins,
+            losses: playerOne.playerOneLosses,
+            ties: ties,
+            dateAdded: firebase.database.ServerValue.TIMESTAMP
+
+        });
+
+        pTwoRef.set({
+            player: 2,
+            name: playerTwo.playerTwoName,
+            choice: playerTwo.playerTwoChoice,
+            wins: playerTwo.playerTwoWins,
+            losses: playerTwo.playerTwoLosses,
+            ties: ties,
+            dateAdded: firebase.database.ServerValue.TIMESTAMP
+
+        });
+
+    }
+}
 
 
 
